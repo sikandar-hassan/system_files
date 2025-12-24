@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Investment Submission</title>
+
+<style>
+body {
+  background:#0f172a;
+  font-family: Arial, sans-serif;
+  color:#e5e7eb;
+}
+.container {
+  max-width:420px;
+  margin:60px auto;
+  background:#020617;
+  padding:25px;
+  border-radius:10px;
+  box-shadow:0 0 15px rgba(0,0,0,0.6);
+}
+h2 {
+  text-align:center;
+  margin-bottom:20px;
+}
+input, select, button {
+  width:100%;
+  padding:12px;
+  margin-top:12px;
+  border-radius:6px;
+  border:none;
+  font-size:14px;
+}
+input, select {
+  background:#020617;
+  color:#e5e7eb;
+  border:1px solid #334155;
+}
+button {
+  background:#2563eb;
+  color:white;
+  cursor:pointer;
+  font-weight:bold;
+}
+button:hover {
+  background:#1d4ed8;
+}
+.small {
+  font-size:12px;
+  color:#94a3b8;
+  margin-top:10px;
+  text-align:center;
+}
+.error {
+  color:#f87171;
+  text-align:center;
+  margin-bottom:10px;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+  <h2>Investment Submission</h2>
+
+  <div id="errorMsg" class="error"></div>
+
+  <form id="investmentForm">
+    <!-- 🔐 Hidden Card Holder ID (from URL) -->
+    <input type="hidden" id="cardId">
+
+    <input type="text" id="name" placeholder="Full Name" required>
+    <input type="email" id="email" placeholder="Email Address" required>
+    <input type="number" id="amount" placeholder="Investment Amount" required>
+
+    <select id="plan" required>
+      <option value="">Select Investment Plan</option>
+      <option>Basic</option>
+      <option>Standard</option>
+      <option>Pro</option>
+    </select>
+
+    <input type="text" id="payment" placeholder="Payment Reference / Txn ID" required>
+
+    <button type="submit">Submit Investment</button>
+  </form>
+
+  <div class="small">
+    Your investment will remain <b>Pending</b> until approved.
+  </div>
+</div>
+
+<script>
+/* 🔹 Get Card Holder ID from URL */
+const params = new URLSearchParams(window.location.search);
+const cardId = params.get("cardId");
+
+const errorMsg = document.getElementById("errorMsg");
+const form = document.getElementById("investmentForm");
+
+if(!cardId){
+  errorMsg.innerHTML = "❌ Unauthorized access. Please use the email link.";
+  form.style.display = "none";
+} else {
+  document.getElementById("cardId").value = cardId;
+}
+
+/* 🔹 Submit Investment */
+form.addEventListener("submit", function(e){
+  e.preventDefault();
+
+  const payload = {
+    action: "submitInvestment",
+    cardId: document.getElementById("cardId").value,
+    name: document.getElementById("name").value,
+    email: document.getElementById("email").value,
+    amount: document.getElementById("amount").value,
+    plan: document.getElementById("plan").value,
+    payment: document.getElementById("payment").value
+  };
+
+  fetch("https://script.google.com/macros/s/AKfycbzsss4T8By_imE7cHsnPKqlZwych8mEnY77psx1N-C3NcCsAm1aQDiUVyofBip5WnVe/exec", {
+    method: "POST",
+    body: JSON.stringify(payload)
+  })
+  .then(res => res.text())
+  .then(txt => {
+    alert("✅ Investment submitted successfully");
+    form.reset();
+  })
+  .catch(() => alert("❌ Error submitting investment"));
+});
+</script>
+
+</body>
+</html>
